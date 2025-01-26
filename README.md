@@ -2,6 +2,7 @@
 intro to AI n8n Workflows 
 
 # Install and Run 
+Source: https://docs.n8n.io/hosting/installation/docker/#starting-n8n
 
 docker volume create n8n_data
 

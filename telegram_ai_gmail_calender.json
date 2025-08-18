@@ -1,0 +1,240 @@
+{
+  "name": "telegram_ai_gmail_calender",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "gpt-5",
+        "options": {}
+      },
+      "id": "d5e60eb2-267c-4f68-aefe-439031bcaceb",
+      "name": "OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        672,
+        240
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "icILOxkK7R76RRQW",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "sami.dhiab.x@gmail.com",
+          "mode": "list",
+          "cachedResultName": "sami.dhiab.x@gmail.com"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        992,
+        256
+      ],
+      "id": "94a25997-1d7f-4a6a-9d0d-690cf2912559",
+      "name": "Get many events in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Qh54nb2BH9LN8UJ6",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6568012217",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1152,
+        32
+      ],
+      "id": "23607167-67d3-42df-bd5d-fcb2e536199e",
+      "name": "Send a text message",
+      "webhookId": "1f8e032f-ea70-4bcf-8474-9ca33cfce6b3",
+      "executeOnce": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "pcZs2rqxVpTIpDQt",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        576,
+        32
+      ],
+      "id": "00f7f844-2e6f-4892-b6b8-69d23fa8472a",
+      "name": "Telegram Trigger",
+      "webhookId": "e68aed02-85c5-4e72-8b95-5130712cd200",
+      "credentials": {
+        "telegramApi": {
+          "id": "pcZs2rqxVpTIpDQt",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "returnAll": true,
+        "simple": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Simplify', ``, 'boolean') }}",
+        "filters": {
+          "q": "=from:{{ $fromAI('email') }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1152,
+        240
+      ],
+      "id": "0ddd9b3c-326b-49fa-9661-030c6aefd353",
+      "name": "Get many messages in Gmail",
+      "webhookId": "a72f37c8-b2c6-4e60-8c95-346d7cc1a12f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "3okJI0yNWouXidq0",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        240
+      ],
+      "id": "6f1ec5fd-1eca-4425-97e8-bd9dbfa164c1",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# User message\n{{ $json.message.text }}",
+        "options": {
+          "systemMessage": "You are an expert Agent in using tools google calendar and gmail and help user on his request.\nUse today's date as reference: {{ $now}}.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        32
+      ],
+      "id": "b37fcc01-3ff7-47df-aa0f-0c2b9448f106",
+      "name": "AI Agent",
+      "alwaysOutputData": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d6a3433b-de9c-4d48-8180-a4f91797647c",
+  "meta": {
+    "templateId": "self-building-ai-agent",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "85fdbe0c142652dc099984900c9bdaa48a8afa0d5af3ad89ab09db72d7958da8"
+  },
+  "id": "nqatee1bDFT8hMEs",
+  "tags": []
+}

@@ -29,7 +29,7 @@ Edit `.env` with your actual values:
 - `NGROK_AUTHTOKEN`: Your ngrok authentication token
 - `NGROK_DOMAIN`: Your ngrok domain (e.g., `viper-valid-happily.ngrok-free.app`)
 - `OPENAI_APIKEY`: Your OpenAI API key
-- `N8N_BASIC_AUTH_PASSWORD`: Choose a secure password
+- `WEBHOOK_URL`: Your ngrok webhook URL (e.g., `https://viper-valid-happily.ngrok-free.app`)
 
 ### 2. Create Docker Volume
 
@@ -47,9 +47,7 @@ docker-compose up -d
 
 Navigate to [http://localhost:5678](http://localhost:5678) to access n8n.
 
-**Default credentials:**
-- Username: `admin`
-- Password: Value from `N8N_BASIC_AUTH_PASSWORD` in `.env`
+**Note:** No authentication is required by default. The service runs on HTTP port 5678.
 
 ## Docker Compose Commands
 
@@ -83,21 +81,19 @@ docker-compose up -d --build
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `N8N_HOST` | n8n hostname | `localhost` |
-| `N8N_PORT` | n8n port | `443` |
-| `N8N_PROTOCOL` | Protocol (http/https) | `https` |
-| `WEBHOOK_TUNNEL_URL` | Ngrok webhook URL | `https://localhost` |
-| `N8N_BASIC_AUTH_USER` | Authentication username | `admin` |
-| `N8N_BASIC_AUTH_PASSWORD` | Authentication password | `password` |
-| `N8N_ENCRYPTION_KEY` | Data encryption key | Auto-generated |
+| `GENERIC_TIMEZONE` | n8n timezone | `UTC` |
+| `TZ` | System timezone | `UTC` |
+| `N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS` | Enforce file permissions | `true` |
+| `N8N_RUNNERS_ENABLED` | Enable task runners | `true` |
+| `WEBHOOK_URL` | Webhook URL for external access | Required |
 | `NGROK_AUTHTOKEN` | Ngrok authentication token | Required |
-| `NGROK_DOMAIN` | Ngrok domain | Required |
+| `NGROK_DOMAIN` | Ngrok domain (e.g., `viper-valid-happily.ngrok-free.app`) | Required |
 | `OPENAI_APIKEY` | OpenAI API key | Required |
 
 ### Ports
 
-- **n8n**: `localhost:5678` → `container:443`
-- **ngrok**: Internal communication only
+- **n8n**: `localhost:5678` → `container:5678`
+- **ngrok**: Internal communication only (tunneling to n8n:5678)
 
 ## Architecture
 
@@ -110,7 +106,7 @@ docker-compose up -d --build
           ▼                       ▼
 ┌─────────────────┐    ┌─────────────────┐
 │   n8n Service  │◄───│   ngrok Service │
-│   Port 443     │    │   Tunneling     │
+│   Port 5678    │    │   Tunneling     │
 └─────────────────┘    └─────────────────┘
 ```
 
@@ -158,11 +154,11 @@ docker-compose exec n8n env
 
 ## Security Notes
 
-- Change default passwords in production
-- Use strong encryption keys
+- **No authentication by default** - Consider adding authentication for production use
 - Keep ngrok auth tokens secure
 - Regularly update Docker images
 - Monitor container logs for suspicious activity
+- Use HTTPS in production environments
 
 ## Support
 
